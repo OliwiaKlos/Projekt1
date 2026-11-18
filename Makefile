@@ -1,6 +1,18 @@
 CC      = gcc
-CFLAGS  = -Wall -Wextra -pedantic -std=c99 -O2
-TARGET  = matrix
+CFLAGS  = -Wall -Wextra -pedantic -std=c90 -O2
+
+ifeq ($(OS),Windows_NT)
+  EXE = .exe
+  RM  = -del /Q /F
+  DEVNULL = 2>NUL
+else
+  EXE =
+  RM  = rm -f
+  DEVNULL =
+endif
+
+TARGET  = matrix$(EXE)
+TEST    = test_matrix$(EXE)
 OBJS    = main.o matrix.o matrix_io.o
 
 .PHONY: all clean run test
@@ -19,16 +31,14 @@ matrix.o: matrix.c matrix.h
 matrix_io.o: matrix_io.c matrix_io.h matrix.h
 	$(CC) $(CFLAGS) -c $<
 
-# przyklad: make run IN=dane.txt OUT=wynik.txt
 run: $(TARGET)
 	./$(TARGET) $(IN) $(OUT)
 
-# testy: pliki A.txt, B.txt, ... powinny lezec w biezacym katalogu
-test_matrix: test_matrix.c matrix.c matrix_io.c matrix.h matrix_io.h
+$(TEST): test_matrix.c matrix.c matrix_io.c matrix.h matrix_io.h
 	$(CC) $(CFLAGS) -o $@ test_matrix.c matrix.c matrix_io.c -lm
 
-test: test_matrix
-	./test_matrix
+test: $(TEST)
+	./$(TEST)
 
 clean:
-	rm -f $(OBJS) $(TARGET) test_matrix test_matrix_tmp.txt
+	$(RM) $(OBJS) $(TARGET) $(TEST) test_matrix_tmp.txt wynik.txt $(DEVNULL)
