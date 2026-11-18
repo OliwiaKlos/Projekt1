@@ -24,18 +24,18 @@ macierz wczytaj(char *nazwa_pliku) {
 
     fin = fopen(nazwa_pliku, "r");
     if (fin == NULL) {
-        printf("nie udalo sie otworzyc pliku: %s\n", nazwa_pliku);
+        printf("blad. nie udalo sie otworzyc pliku: %s\n", nazwa_pliku);
         exit(1);
     }
 
     if (fscanf(fin, "%d %d", &m.w, &m.k) != 2) {
-        printf("bledny format pliku. podaj liczbe wierszy/kolumn w pliku: %s\n", nazwa_pliku);
+        printf("blad. bledny format pliku. podaj liczbe wierszy/kolumn w pliku: %s\n", nazwa_pliku);
         fclose(fin);
         exit(2);
     }
 
     if (m.w <= 0 || m.k <= 0 || m.w > MAX || m.k > MAX) {
-        printf("niepoprawne wymiary macierzy: %d x %d\n", m.w, m.k);
+        printf("blad. niepoprawne wymiary macierzy: %d x %d\n", m.w, m.k);
         fclose(fin);
         exit(4);
     }
@@ -43,7 +43,7 @@ macierz wczytaj(char *nazwa_pliku) {
     for (i = 0; i < m.w; i++) {
         for (j = 0; j < m.k; j++) {
             if (fscanf(fin, "%lf", &m.wartosci[i][j]) != 1) {
-                printf("bledne dane w pliku. wartosc wierszy i kolumn niezgodne z wartosciami macierzy w pliku: %s\n", nazwa_pliku);
+                printf("blad. bledne dane w pliku. wartosc wierszy i kolumn niezgodne z wartosciami macierzy w pliku: %s\n", nazwa_pliku);
                 fclose(fin);
                 exit(3);
             }
@@ -60,18 +60,17 @@ void zapisz(char *nazwa, macierz m) {
 
     fout = fopen(nazwa, "w");
     if (fout == NULL) {
-        printf("nie udalo sie utworzyc pliku %s\n", nazwa);
+        printf("blad. nie udalo sie utworzyc pliku %s\n", nazwa);
         exit(1);
     }
 
-    fprintf(fout, "%d\n", m.w);
-    fprintf(fout, "%d\n", m.k);
+    fprintf(fout, "%d %d\n", m.w, m.k);
 
     for (i = 0; i < m.w; i++) {
         for (j = 0; j < m.k; j++) {
-            fprintf(fout, "%.2f ", m.wartosci[i][j]);
-        }
-        fprintf(fout, "\n");
+    		fprintf(fout, j ? " %.2f" : "%.2f", m.wartosci[i][j]);
+		}
+		fprintf(fout, "\n");
     }
 
     fclose(fout);

@@ -5,7 +5,7 @@ macierz dodaj(macierz lewa, macierz prawa) {
     int i, j;
 
     if (lewa.w != prawa.w || lewa.k != prawa.k) {
-        printf("niezgodne wymiary macierzy do operacji\n");
+        printf("blad. niezgodne wymiary macierzy do operacji\n");
         exit(2);
     }
 
@@ -26,7 +26,7 @@ macierz odejmij(macierz lewa, macierz prawa) {
     int i, j;
 
     if (lewa.w != prawa.w || lewa.k != prawa.k) {
-        printf("niezgodne wymiary macierzy do operacji\n");
+        printf("blad. niezgodne wymiary macierzy do operacji\n");
         exit(2);
     }
 
@@ -47,7 +47,7 @@ macierz mnoz(macierz lewa, macierz prawa) {
     int i, j, k;
 
     if (lewa.k != prawa.w) {
-        printf("niezgodne wymiary macierzy do operacji\n");
+        printf("blad. niezgodne wymiary macierzy do operacji\n");
         exit(2);
     }
 
