@@ -1,8 +1,11 @@
+#define _POSIX_C_SOURCE 200112L   /* dla opendir/readdir przy -std=c90 */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <float.h>
+#include <dirent.h>
 #include "matrix.h"
 #include "matrix_io.h"
 
@@ -131,6 +134,35 @@ int zapisz(const char *nazwa_pliku, const macierz *m) {
         return ERR_ZAPIS;
     }
     return OK;
+}
+
+static int porownaj_nazwy(const void *a, const void *b) {
+    return strcmp((const char *)a, (const char *)b);
+}
+
+int lista_plikow(const char *folder, char nazwy[][DL_NAZWY_PLIKU], int max) {
+    DIR *d;
+    struct dirent *wpis;
+    int n = 0;
+    size_t dl;
+
+    d = opendir(folder);
+    if (d == NULL)
+        return -1;
+
+    while (n < max && (wpis = readdir(d)) != NULL) {
+        dl = strlen(wpis->d_name);
+        if (dl < 5 || dl >= DL_NAZWY_PLIKU)
+            continue;
+        if (strcmp(wpis->d_name + dl - 4, ".txt") != 0)
+            continue;
+        strcpy(nazwy[n], wpis->d_name);
+        n++;
+    }
+    closedir(d);
+
+    qsort(nazwy, (size_t)n, DL_NAZWY_PLIKU, porownaj_nazwy);
+    return n;
 }
 
 void wypisz(const macierz *m) {

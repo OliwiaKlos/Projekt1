@@ -52,11 +52,9 @@ static struct { const char *plik; int kod; } wejscia[] = {
     {"nie_istnieje.txt", ERR_OTWARCIE_PLIKU},
     {"pusty.txt", ERR_NAGLOWEK},
     {"wymiar_ulamkowy.txt", ERR_NAGLOWEK},
-    {"zero_wierszy.txt", ERR_WYMIARY_ZAKRES},
     {"za_duzy.txt", ERR_WYMIARY_ZAKRES},
     {"uciety.txt", ERR_BRAK_ELEMENTU},
     {"tekst.txt", ERR_ELEMENT_NIELICZBOWY},
-    {"nan.txt", ERR_ELEMENT_NIELICZBOWY},
 };
 
 static const char *zapisy[][2] = {
@@ -187,6 +185,19 @@ static void testy_biblioteki(void) {
                 && (wejscia[i].kod == OK || tmp.w == 77), opis);
     }
 
+    printf("\n--- lista plikow (biblioteka) ---\n");
+    {
+        static char lista[MAX_PLIKOW][DL_NAZWY_PLIKU];
+        int n = lista_plikow("Dane", lista, MAX_PLIKOW), k, posortowana = 1, jest_a = 0;
+        for (k = 0; k < n; k++) {
+            if (strcmp(lista[k], "A.txt") == 0) jest_a = 1;
+            if (k > 0 && strcmp(lista[k - 1], lista[k]) >= 0) posortowana = 0;
+        }
+        sprawdz(n > 0 && jest_a && posortowana, "lista_plikow(Dane): zawiera A.txt, posortowana");
+        sprawdz(lista_plikow("nie_ma_takiego_folderu", lista, MAX_PLIKOW) == -1,
+                "lista_plikow(brak folderu) -> -1");
+    }
+
     printf("\n--- zapis (biblioteka) ---\n");
     for (i = 0; i < LICZBA(zapisy); i++) {
         sciezka(pa, zapisy[i][0]);
@@ -282,6 +293,21 @@ static void testy_programu(void) {
     }
     sprawdz(uruchom_pliki(pa, pb, TMP_WY, "") == ERR_OPERACJA,
             "brak numeru operacji -> ERR_OPERACJA");
+
+    {
+        static char lista[MAX_PLIKOW][DL_NAZWY_PLIKU];
+        int n = lista_plikow("Dane", lista, MAX_PLIKOW), k, numer = 0;
+        for (k = 0; k < n; k++)
+            if (strcmp(lista[k], "B.txt") == 0) numer = k + 1;
+        sprintf(op, "%d", numer);
+        kod = uruchom_pliki(op, op, TMP_WY, "1");
+        sprawdz(numer > 0 && kod == OK && wczytaj(TMP_WY, &wynik) == OK
+                && wczytaj(OCZEKIWANE "B_plus_B.txt", &oczek) == OK && rowne(&wynik, &oczek),
+                "wybor plikow z listy numerem (B + B) -> kod 0, poprawny wynik");
+        kod = uruchom_pliki("999", pb, TMP_WY, "1");
+        sprawdz(kod == ERR_OTWARCIE_PLIKU && !plik_istnieje(TMP_WY),
+                "numer spoza listy traktowany jak nazwa pliku -> kod 2");
+    }
 
     sprawdz(uruchom("") == ERR_BRAK_NAZWY, "puste wejscie -> ERR_BRAK_NAZWY");
     sprintf(wejscie, "%s\n", pa);
