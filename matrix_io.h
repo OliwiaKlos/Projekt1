@@ -3,23 +3,15 @@
 
 #include "matrix.h"
 
-/* Wczytuje macierz z pliku tekstowego. Zwraca OK albo kod bledu
-   (plik jest zawsze zamykany, *m zawiera sensowne dane tylko przy OK). */
 int wczytaj(const char *nazwa_pliku, macierz *m);
 
-/* Zapisuje macierz do pliku (dwie cyfry po kropce). Zwraca OK albo kod bledu.
-   Przy bledzie zapisu nie zostaje niepelny plik wyniku (jesli nie istnial wczesniej). */
 int zapisz(const char *nazwa_pliku, const macierz *m);
 
 #define MAX_PLIKOW 100
 #define DL_NAZWY_PLIKU 128
 
-/* Zapisuje w nazwy[] posortowane nazwy plikow *.txt z folderu (najwyzej max).
-   Zwraca liczbe znalezionych plikow albo -1, gdy nie da sie otworzyc folderu.
-   Uwaga: korzysta z <dirent.h> (POSIX; dziala na Linuksie, macOS i MinGW). */
 int lista_plikow(const char *folder, char nazwy[][DL_NAZWY_PLIKU], int max);
 
-/* Wypisuje macierz na standardowe wyjscie. */
 void wypisz(const macierz *m);
 
 #endif

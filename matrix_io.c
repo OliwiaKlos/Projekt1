@@ -1,4 +1,4 @@
-#define _POSIX_C_SOURCE 200112L   /* dla opendir/readdir przy -std=c90 */
+#define _POSIX_C_SOURCE 200112L
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +11,6 @@
 
 #define DL_TOKENU 128
 
-/* Czyta kolejny token oddzielony bialymi znakami; 1 = ok, 0 = koniec pliku. */
 static int czytaj_token(FILE *f, char *bufor) {
     return fscanf(f, "%127s", bufor) == 1;
 }
@@ -38,7 +37,6 @@ static int parsuj_liczbe(const char *token, double *wartosc) {
     char *koniec;
     double v;
 
-    /* dozwolone tylko znaki liczby dziesietnej: odrzuca nan, inf, hex itp. */
     if (token[strspn(token, "0123456789+-.eE")] != '\0')
         return ERR_ELEMENT_NIELICZBOWY;
 
@@ -46,7 +44,7 @@ static int parsuj_liczbe(const char *token, double *wartosc) {
     v = strtod(token, &koniec);
     if (koniec == token || *koniec != '\0')
         return ERR_ELEMENT_NIELICZBOWY;
-    if (v > DBL_MAX || v < -DBL_MAX)   /* przepelnienie (np. 1e400) */
+    if (v > DBL_MAX || v < -DBL_MAX)
         return ERR_ELEMENT_NIELICZBOWY;
 
     *wartosc = v;
@@ -125,7 +123,7 @@ int zapisz(const char *nazwa_pliku, const macierz *m) {
             blad = 1;
     }
 
-    if (fclose(f) != 0)   /* tu wychodza np. bledy "dysk pelny" */
+    if (fclose(f) != 0)
         blad = 1;
 
     if (blad) {

@@ -20,7 +20,6 @@ static int pobierz_nazwe(const char *zacheta, char *nazwa) {
     return scanf("%255s", nazwa) == 1;
 }
 
-/* Pobiera nazwe pliku wejsciowego: numer z listy albo nazwa/sciezka. */
 static int pobierz_plik(const char *zacheta, char *sciezka,
                         char lista[][DL_NAZWY_PLIKU], int ile) {
     char token[DL_NAZWY];

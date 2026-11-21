@@ -1,5 +1,3 @@
-/* Testy: biblioteka (matrix.c, matrix_io.c) oraz caly program (kody wyjscia).
-   Uruchamianie: ./test_matrix ./matrix   (z katalogu glownego projektu) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +16,6 @@
 #define PLIK_PELNY "/dev/full"
 #endif
 
-/* pliki oczekiwane maja 2 miejsca po kropce, wiec porownujemy z dokladnoscia do 0.005 */
 #define TOLERANCJA 0.0050001
 
 #define TMP_WE "test_matrix_in.txt"
@@ -32,15 +29,14 @@ static const char *wyniki[][4] = {
     {"d", "A.txt", "B.txt", OCZEKIWANE "A_plus_B.txt"},
     {"o", "A.txt", "B.txt", OCZEKIWANE "A_minus_B.txt"},
     {"m", "A.txt", "B.txt", OCZEKIWANE "A_razy_B.txt"},
-    {"o", "R.txt", "S.txt", OCZEKIWANE "R_minus_S.txt"},      /* prostokatne, ujemne */
-    {"m", "P.txt", "Q.txt", OCZEKIWANE "P_razy_Q.txt"},       /* prostokatne */
-    {"m", "A.txt", "Z.txt", OCZEKIWANE "A_razy_Z.txt"},       /* zera */
-    {"m", "jeden_a.txt", "jeden_b.txt", OCZEKIWANE "jeden_razy.txt"},  /* 1 x 1 */
-    {"m", "d20.txt", "d20.txt", OCZEKIWANE "d20_razy_d20.txt"},        /* 20 x 20 */
+    {"o", "R.txt", "S.txt", OCZEKIWANE "R_minus_S.txt"},
+    {"m", "P.txt", "Q.txt", OCZEKIWANE "P_razy_Q.txt"},
+    {"m", "A.txt", "Z.txt", OCZEKIWANE "A_razy_Z.txt"},
+    {"m", "jeden_a.txt", "jeden_b.txt", OCZEKIWANE "jeden_razy.txt"},
+    {"m", "d20.txt", "d20.txt", OCZEKIWANE "d20_razy_d20.txt"},
     {"m", "wiersz20.txt", "kolumna20.txt", OCZEKIWANE "wiersz20_razy_kolumna20.txt"},
 };
 
-/* niezgodne wymiary: operacja, A, B (kod wynika z operacji) */
 static const char *niezgodne[][3] = {
     {"d", "A.txt", "P.txt"},
     {"o", "A.txt", "P.txt"},
@@ -115,8 +111,6 @@ static int pliki_rowne_tekstowo(const char *a, const char *b) {
         && strcmp(ta, tb) == 0;
 }
 
-/* Uruchamia caly program, podajac mu na wejscie podany tekst.
-   Zwraca kod wyjscia albo -1, gdy program zakonczyl sie awaria. */
 static int uruchom(const char *wejscie) {
     char polecenie[1024];
     FILE *f;
@@ -235,7 +229,7 @@ static void testy_biblioteki(void) {
 }
 
 static void testy_programu(void) {
-    char opis[256], pa[256], pb[256], op[2], wejscie[768];
+    char opis[256], pa[256], pb[256], op[16], wejscie[768];
     macierz wynik, oczek;
     int i, kod;
 
@@ -296,14 +290,19 @@ static void testy_programu(void) {
 
     {
         static char lista[MAX_PLIKOW][DL_NAZWY_PLIKU];
-        int n = lista_plikow("Dane", lista, MAX_PLIKOW), k, numer = 0;
+        char numer_txt[16];
+        int n = lista_plikow("Dane", lista, MAX_PLIKOW), k, numer = 0, ma_oczek, zgodne;
         for (k = 0; k < n; k++)
             if (strcmp(lista[k], "B.txt") == 0) numer = k + 1;
-        sprintf(op, "%d", numer);
-        kod = uruchom_pliki(op, op, TMP_WY, "1");
-        sprawdz(numer > 0 && kod == OK && wczytaj(TMP_WY, &wynik) == OK
-                && wczytaj(OCZEKIWANE "B_plus_B.txt", &oczek) == OK && rowne(&wynik, &oczek),
+        sprintf(numer_txt, "%d", numer);
+        kod = uruchom_pliki(numer_txt, numer_txt, TMP_WY, "1");
+        ma_oczek = wczytaj(OCZEKIWANE "B_plus_B.txt", &oczek) == OK;
+        zgodne = wczytaj(TMP_WY, &wynik) == OK && ma_oczek && rowne(&wynik, &oczek);
+        sprawdz(numer > 0 && kod == OK && zgodne,
                 "wybor plikow z listy numerem (B + B) -> kod 0, poprawny wynik");
+        if (!(numer > 0 && kod == OK && zgodne))
+            printf("       numer B.txt na liscie: %d, kod wyjscia: %d, plik " OCZEKIWANE "B_plus_B.txt %s\n",
+                   numer, kod, ma_oczek ? "jest" : "NIE ISTNIEJE (skopiuj go z paczki)");
         kod = uruchom_pliki("999", pb, TMP_WY, "1");
         sprawdz(kod == ERR_OTWARCIE_PLIKU && !plik_istnieje(TMP_WY),
                 "numer spoza listy traktowany jak nazwa pliku -> kod 2");
