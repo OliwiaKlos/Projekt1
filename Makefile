@@ -32,13 +32,13 @@ matrix_io.o: matrix_io.c matrix_io.h matrix.h
 	$(CC) $(CFLAGS) -c $<
 
 run: $(TARGET)
-	./$(TARGET) $(IN) $(OUT)
+	./$(TARGET)
 
 $(TEST): test_matrix.c matrix.c matrix_io.c matrix.h matrix_io.h
 	$(CC) $(CFLAGS) -o $@ test_matrix.c matrix.c matrix_io.c -lm
 
-test: $(TEST)
-	./$(TEST)
+test: $(TEST) $(TARGET)
+	./$(TEST) ./$(TARGET)
 
 clean:
-	$(RM) $(OBJS) $(TARGET) $(TEST) test_matrix_tmp.txt wynik.txt $(DEVNULL)
+	$(RM) $(OBJS) $(TARGET) $(TEST) test_matrix_in.txt test_matrix_out.txt wynik.txt $(DEVNULL)

@@ -5,61 +5,74 @@
 
 #define DL_NAZWY 256
 
-int main() {
-	int op = 0;
-    macierz m1, m2, m3;
-    char plik_we_A[DL_NAZWY], plik_we_B[DL_NAZWY], plik_wy[DL_NAZWY];
+static int zglos_blad(int kod, const char *szczegol) {
+    fprintf(stderr, "blad (kod %d): %s", kod, komunikat_bledu(kod));
+    if (szczegol != NULL)
+        fprintf(stderr, " [%s]", szczegol);
+    fprintf(stderr, "\n");
+    return kod;
+}
 
-	printf("podaj plik macierzy A: ");
-	if (scanf("%255s", plik_we_A) != 1) {
-		fprintf(stderr, "blad. nie podano nazwy pliku macierzy\n");
-		return 1;
-	}
-	
-	printf("podaj plik macierzy B: ");
-	if (scanf("%255s", plik_we_B) != 1) {
-		fprintf(stderr, "blad. nie podano nazwy pliku macierzy\n");
-		return 1;
-	}
+static int pobierz_nazwe(const char *zacheta, char *nazwa) {
+    printf("%s", zacheta);
+    return scanf("%255s", nazwa) == 1;
+}
 
-	printf("podaj plik wyniku: ");
-	if (scanf("%255s", plik_wy) != 1) {
-		fprintf(stderr, "blad. nie podano nazwy pliku wyjsciowego\n");
-		return 1;
-	}
-	
-	m1 = wczytaj(plik_we_A);
-	wypisz(m1);
-	m2 = wczytaj(plik_we_B);
-	wypisz(m2);
-	
-	printf("podaj numer operacji(1- dodawanie, 2- odejmowanie, 3- mnozenie): ");
-	if (scanf("%d", &op) != 1) op = 0;
-	printf("\n");
-	
-	switch(op){
-		case 1:
-			m3 = dodaj(m1, m2);
-    		printf("wynik dodawania:\n");
-    		wypisz(m3);
-    		break;
-    	case 2:
-    		m3 = odejmij(m1, m2);
-    		printf("wynik odejmowania:\n");
-    		wypisz(m3);
-    		break;
-    	case 3:
-    		m3 = mnoz(m1, m2);
-    		printf("wynik mnozenia:\n");
-    		wypisz(m3);
-    		break;
-    	default:
-    		printf("blad. nieprawidlowy numer operacji\n");
-    		return 1;
-	}
-	
+int main(void) {
+    macierz a, b, wynik;
+    char plik_a[DL_NAZWY], plik_b[DL_NAZWY], plik_wy[DL_NAZWY];
+    char token_op[32], *koniec;
+    long op;
+    int kod;
+
+    if (!pobierz_nazwe("podaj plik macierzy A: ", plik_a))
+        return zglos_blad(ERR_BRAK_NAZWY, "macierz A");
+    if (!pobierz_nazwe("podaj plik macierzy B: ", plik_b))
+        return zglos_blad(ERR_BRAK_NAZWY, "macierz B");
+    if (!pobierz_nazwe("podaj plik wyniku: ", plik_wy))
+        return zglos_blad(ERR_BRAK_NAZWY, "plik wyniku");
+
+    kod = wczytaj(plik_a, &a);
+    if (kod != OK)
+        return zglos_blad(kod, plik_a);
+    wypisz(&a);
+
+    kod = wczytaj(plik_b, &b);
+    if (kod != OK)
+        return zglos_blad(kod, plik_b);
+    wypisz(&b);
+
+    printf("podaj numer operacji (1 - dodawanie, 2 - odejmowanie, 3 - mnozenie): ");
+    if (scanf("%31s", token_op) != 1)
+        return zglos_blad(ERR_OPERACJA, "nie podano numeru");
+    op = strtol(token_op, &koniec, 10);
+    if (*koniec != '\0')
+        return zglos_blad(ERR_OPERACJA, "to nie jest liczba calkowita");
+    printf("\n");
+
+    switch (op) {
+    case 1:
+        kod = dodaj(&a, &b, &wynik);
+        break;
+    case 2:
+        kod = odejmij(&a, &b, &wynik);
+        break;
+    case 3:
+        kod = mnoz(&a, &b, &wynik);
+        break;
+    default:
+        return zglos_blad(ERR_OPERACJA, "podano inna liczbe");
+    }
+    if (kod != OK)
+        return zglos_blad(kod, NULL);
+
+    printf("wynik:\n");
+    wypisz(&wynik);
+
+    kod = zapisz(plik_wy, &wynik);
+    if (kod != OK)
+        return zglos_blad(kod, plik_wy);
+
     printf("zapisano wynik do pliku: %s\n", plik_wy);
-    zapisz(plik_wy, m3);
-
-    return 0;
+    return OK;
 }
