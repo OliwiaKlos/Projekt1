@@ -41,4 +41,4 @@ test: $(TEST) $(TARGET)
 	./$(TEST) ./$(TARGET)
 
 clean:
-	$(RM) $(OBJS) $(TARGET) $(TEST) test_matrix_in.txt test_matrix_out.txt wynik.txt $(DEVNULL)
+	$(RM) $(OBJS) $(TARGET) $(TEST) test_matrix_in.txt test_matrix_out.txt $(DEVNULL)
